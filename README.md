@@ -1,11 +1,13 @@
 
 
-## Terraform Sample Codes for Web Hosting Architecture on AWS China region
+## Setting Up Web Hosting Architecture in China region: Terraform Sample Codes 
 
 中文版本请点击[此文档](README-cn.md)
 
-This repo provides three types of web hosting architecture sample codes. Each of them contain a default example website, so that you could visit directly after the deployment.
-1. Serverless：Cloudfront + S3 / API Gateway + Lambda + DynamoDB
+This repo provides three types of web hosting architecture sample codes. Each of them contains a default example website, so that you could visit directly after the deployment for easy testing. 
+You could also use this script to check how to launch a terraform project in China region.  For each architecture,   architecture diagram is attached in the corresponding chapter. 
+
+1. Serverless：Cloudfront + S3 + API Gateway + Lambda + DynamoDB
 2. EC2: Cloudfront - ALB - EC2 in Auto Scaling Group - DynamoDB
 3. EKS: EKS for front and backend
 
@@ -16,12 +18,12 @@ This repo provides three types of web hosting architecture sample codes. Each of
 
 ## Pre-requisite 
 * Install and configure [AWS CLI](https://aws.amazon.com/cn/cli/)
-* Have a domain whose first domain has completed the ICP recordal process 
-* Have AWS China account (if you would like to apply one, please refer to [this page](https://docs.amazonaws.cn/en_us/aws/latest/userguide/accounts-and-credentials.html#signup) for guidance)
+* Have a domain whose first domain has completed the ICP recordal process, as required by local regulation.
+* Have an AWS China account (if you would like to apply one, please refer to [this page](https://docs.amazonaws.cn/en_us/aws/latest/userguide/accounts-and-credentials.html#signup) for guidance, China legal entity's business license will be needed)
 * the AWS China account has opened the 80、8080、443 ports (blocked by default, use ICP recordal to apply for the unblock)
-* Apply for SSL certificates in advanced，as Cloudfront in China region doesn't allow default domain and certificate. 
+* Apply for SSL certificates in advanced，as Cloudfront in China region doesn't allow default domain and certificate for visiting, for regulation reasons. 
 * Upload this certificates to IAM，for CloudFront to use (China region doesn't support ACM integration yet -202206 )
-* We will not cover more introduction about China region in this repo, please check [this doc](https://docs.amazonaws.cn/en_us/aws/latest/userguide/what-is-aws.html) for more information if you are interested to learn more.
+* We will not cover more China region introduction in this repo, please check [this doc](https://docs.amazonaws.cn/en_us/aws/latest/userguide/what-is-aws.html) for more information if you are interested to learn more.
 
 ```
 # use CLI to upload the SSL certificate 
@@ -62,7 +64,7 @@ Back-end: API Gateway + Lambda
     Note: If you would like to revise the name of DynamoDB tablles, please also revise this value in lambda codes.
     ```
 
-3. Revise cloudfront.tf, and add self-defined CNAME & certificates
+3. Revise cloudfront.tf, and add your CNAME & certificates
 
     ```
     # must have a SSL certificate ready in IAM before you add alias
@@ -71,7 +73,7 @@ Back-end: API Gateway + Lambda
     ]
     
     viewer_certificate {
-       acm_certificate_arn = "xxxxxx"  #Cerficates ARN
+       acm_certificate_arn = "xxxxxx"  #Cerficates ARN. To get this value, please upload the certificates to IAM first. 
        ssl_support_method  = "sni-only" 
     }
     
@@ -83,7 +85,7 @@ Back-end: API Gateway + Lambda
     
     ```
 
-4. (Optional) If your DNS host zone has already existed，and also in current AWS accounts, add the below codes to cloudfront.tf, so that terraform could add Cloudfront CNAME records. 
+4. (Optional) If your DNS host zone has already existed in current AWS accounts, add the below codes to cloudfront.tf, so that terraform could add Cloudfront CNAME records. 
 
     ```
     # If your DNS host zone has aready existed in current AWS account, use these below codes for terraform to add the cloudfront records.
@@ -143,7 +145,7 @@ Back-end: API Gateway + Lambda
 
 ### Verify & Troubleshooting
 
-Use your own domain, and S3 bucket endpoint to verify if both could visit the example website
+Please use your own domain, and S3 bucket endpoint to verify if both URL could be used to visit the example website.
 
 >Note: In China, because of regulation requirements，it's expected that you can't use Cloudfront's default domain(xxx.cloudfront.cn) for visiting，this is not an error.
 
@@ -179,7 +181,7 @@ Back-end: ALB + EC2 (as app server) in Auto Scaling
     ]
     
     viewer_certificate {
-       acm_certificate_arn = "xxxxxx"  #Certificate ARN
+       acm_certificate_arn = "xxxxxx"  #Certificate ARN. must upload the certificates to IAM first to get this value.
        ssl_support_method  = "sni-only" 
     }
     
@@ -237,7 +239,7 @@ Back-end: ALB + EC2 (as app server) in Auto Scaling
     ```
 
 7. After revising, upload the JS file to server. and upload this to your own S3 bucket.
-8. Replace the s3 bucket ` tiange-s3-web-hosting` in the user data with your own bucket, so that the new EC2 will automatically get the latest updated files 
+8. Replace the s3 bucket ` tiange-s3-web-hosting` in the user data with your own bucket, so that the new scaled EC2 will automatically get the latest updated files 
     
     ```
     aws s3 sync tutorial/ s3://xxxxx.example.com/
@@ -282,9 +284,9 @@ kubectl apply -f dashboard-v2.0.0.yaml
 kubectl get pods -n kube-system
 kubectl get services -n kube-system
 
- # deploy ALB ingress controller
- # refer to https://docs.amazonaws.cn/en_us/eks/latest/userguide/aws-load-balancer-controller.html
- # in Beijing region, the docker image should be: image.repository=918309763551.dkr.ecr.cn-north-1.amazonaws.com.cn/amazon/aws-load-balancer-controller:v2.4.0
+# deploy ALB ingress controller
+# refer to https://docs.amazonaws.cn/en_us/eks/latest/userguide/aws-load-balancer-controller.html  for local docker images, or the speed may be extremely slow.
+# in Beijing region, the docker image should be: image.repository=918309763551.dkr.ecr.cn-north-1.amazonaws.com.cn/amazon/aws-load-balancer-controller:v2.4.0
 
 # Deploy sample Application
 
@@ -310,6 +312,9 @@ kubectl apply -f ecsdemo-frontend.yaml
 ## Check if the deployment is successful 
 kubectl get deployment ecsdemo-frontend
 kubectl get ingress ecsdemo-frontend
+
+# delete if needed 
+terraform destroy
 
 ```
 

@@ -2,7 +2,7 @@
 
 ## AWS 中国区：前后端分离 Web Hosting 架构 Terraform 示例代码
 
-**For English version, please kindly check this [README-EN](README.md)**
+**For English version, please kindly check this [README](README.md)**
 
 此 repo 提供三种形式的前后端分离的示例代码，且每种架构部署完后，都提供一个可直接访问的 sample website，以方便测试。
 1. Serverless：Cloudfront + S3 / API Gateway + Lambda + DynamoDB
@@ -11,9 +11,9 @@
 
 ## 前提条件
 
-* 拥有一个主域名做过ICP备案的域名，可以用二级域名
-* 拥有中国区账号，[点击此处](https://signin.amazonaws.cn/signup?request_type=register)申请
-* 部署账号已经打开 80、8080、443的端口。 注：默认是关闭的，需要ICP备案后申请打开。
+* 拥有一个主域名做过ICP备案的域名，可以用备案后的二级域名
+* 拥有中国区账号，如果您还没有，[点击此处](https://signin.amazonaws.cn/signup?request_type=register)申请 （需要营业执照）
+* 部署账号已经打开 80、8080、443的端口。 注：默认是关闭的，需要拥有ICP备案后申请打开。
 * 提前申请域名证书，并将域名对应的 SSL 证书上传至 IAM，用于CloudFront 启用 HTTPS
 
 ```
@@ -34,13 +34,13 @@ aws iam upload-server-certificate —server-certificate-name CertificateName
 
 ### 部署步骤
 
-1.   下载代码
+1. 下载代码
     ```
     git clone https://github.com/aws-samples/web-hosting-architecture-examples-for-china-region-terraform.git
     cd serverless
     ```
 
-1. 修改 variable.tf  替换域名为自己的变量
+2. 修改 variable.tf  替换域名为自己的变量
 
     ```
     variable "site_domain" {
@@ -52,7 +52,7 @@ aws iam upload-server-certificate —server-certificate-name CertificateName
     注：如果要改 DynamoDB的名称，需要在 lambda 代码里面也将此值改掉。
     ```
 
-1. 修改 cloudfront.tf ，添加自定义域名 CNAME 和证书
+3. 修改 cloudfront.tf ，添加自定义域名 CNAME 和证书
 
     ```
     # 有SSL证书才能加alias
@@ -69,11 +69,10 @@ aws iam upload-server-certificate —server-certificate-name CertificateName
     # viewer_certificate {
     #    cloudfront_default_certificate = true  #使用默认证书
     # }
-    
-    
+
     ```
 
-1.  (Optional) 如果DNS host zone 已存在，且在本账号中，可以添加下面代码到 cloudfront.tf 中，以便terraform自动添加 Cloudfront CNAME 记录。 
+4. (Optional) 如果DNS host zone 已存在，且在本账号中，可以添加下面代码到 cloudfront.tf 中，以便terraform自动添加 Cloudfront CNAME 记录。 
 
     ```
     # 如果您的 DNS host zone 已经在此 AWS 账号中，并且希望 terraform 帮您添加 cloudfront 域名记录
@@ -99,15 +98,15 @@ aws iam upload-server-certificate —server-certificate-name CertificateName
       }
     }
     ```
-
-1. 执行 Terraform 脚本
+    
+5. 执行 Terraform 脚本
 
     ```
     terraform init
     terraform apply
     ```
 
-1. 下载前端代码，修改` /tutorial/js/config.js`  中的 `invokeUrl` 为输出的` ``api_gateway_endpoint`
+6. 下载前端代码，修改` /tutorial/js/config.js`  中的 `invokeUrl` 为输出的` ``api_gateway_endpoint`
 
     ```
     # 下载前端代码
@@ -121,16 +120,16 @@ aws iam upload-server-certificate —server-certificate-name CertificateName
     };
     ```
 
-1. 修改完成后，上传所有静态文件到生成的 S3 bucket 中。 
+7. 修改完成后，上传所有静态文件到生成的 S3 bucket 中。 
 
     ```
     aws s3 sync tutorial/ s3://xxxxx.example.com/
     ```
 
-1. 打开 API Gateway,  找到 /ride 资源， action中，选择 enable CORS，并且重新部署 API
-2. （如未在脚本中添加 ROU53 记录）请在自己的 ROUTE 53 zone 中，添加 cloudfront 的 CNAME 记录。将 域名指向 Cloudfront 默认域名 ([xxxx.cloudfront.cn](http://xxxx.cloudfront.cn/))
+8. 打开 API Gateway,  找到 /ride 资源， action中，选择 enable CORS，并且重新部署 API
+9. （如未在脚本中添加 ROU53 记录）请在自己的 ROUTE 53 zone 中，添加 cloudfront 的 CNAME 记录。将 域名指向 Cloudfront 默认域名 ([xxxx.cloudfront.cn](http://xxxx.cloudfront.cn/))
 
-1. 如需要删除，`terraform destroy` 删除资源
+10. 如需要删除，`terraform destroy` 删除资源
 
 ### 验证 & 排错
 
@@ -304,6 +303,8 @@ kubectl apply -f ecsdemo-frontend.yaml
 kubectl get deployment ecsdemo-frontend
 kubectl get ingress ecsdemo-frontend
 
+# 删除
+terraform destroy
 ```
 
 
