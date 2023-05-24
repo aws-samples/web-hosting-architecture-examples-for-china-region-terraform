@@ -7,7 +7,7 @@
 This repo provides three types of web hosting architecture sample codes. Each of them contains a default example website, so that you could visit directly after the deployment for easy testing. 
 You could also use this script to check how to launch a terraform project in China region.  For each architecture,   architecture diagram is attached in the corresponding chapter. 
 
-1. Serverless：Cloudfront + S3 + API Gateway + Lambda + DynamoDB
+1. Serverless：Cloudfront + S3 + API Gateway + Lambda + DynamoDB  [please check note No.5 first for this architecture]
 2. EC2: Cloudfront - ALB - EC2 in Auto Scaling Group - DynamoDB
 3. EKS: EKS for front and backend
 
@@ -15,12 +15,14 @@ You could also use this script to check how to launch a terraform project in Chi
 >1. Terraform could be used in China region too. 
 >2. If you have existing terraform scripts that apply to other global AWS regions, you need to revise the scripts to make it work.  
 >3. The differences that need to revise mainly includes ARN, [service endpoint](https://docs.amazonaws.cn/en_us/aws/latest/userguide/endpoints-arns.html) and region codes etc.
+>4. For detailed service feature difference,  please refer to [this doc](https://docs.amazonaws.cn/en_us/aws/latest/userguide/services.html)
+>5. For S3 static web hosting, please make sure you contact your local team about ICP recordal first. As this architecture can't help you to obtain ICP recordal.  If you need to pass ICP, you will need to deploy on EC2(optiona2) or EKS/ECS(option 3)
 
 ## Pre-requisite 
 * Install and configure [AWS CLI](https://aws.amazon.com/cn/cli/)
 * Have a domain whose first domain has completed the ICP recordal process, as required by local regulation.
 * Have an AWS China account (if you would like to apply one, please refer to [this page](https://docs.amazonaws.cn/en_us/aws/latest/userguide/accounts-and-credentials.html#signup) for guidance, China legal entity's business license will be needed)
-* the AWS China account has opened the 80、8080、443 ports (blocked by default, use ICP recordal to apply for the unblock)
+* the AWS China account has opened the 80、8080、443 ports (blocked by default, use ICP recordal to apply for unblock)
 * Apply for SSL certificates in advanced，as Cloudfront in China region doesn't allow default domain and certificate for visiting, for regulation reasons. 
 * Upload this certificates to IAM，for CloudFront to use (China region doesn't support ACM integration yet -202206 )
 * We will not cover more China region introduction in this repo, please check [this doc](https://docs.amazonaws.cn/en_us/aws/latest/userguide/what-is-aws.html) for more information if you are interested to learn more.
